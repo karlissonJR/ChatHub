@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import '../App.css';
 import './Login.css';
 import api from '../services/api';
+import io from 'socket.io-client';
 
 export default function Login({ history }){
     
@@ -15,6 +16,10 @@ export default function Login({ history }){
         });
 
         const { _id } = response.data;
+
+        const socket = io('http://localhost:3333');
+
+        socket.emit('log', _id);
 
         history.push(`/dev/${_id}`);
     }

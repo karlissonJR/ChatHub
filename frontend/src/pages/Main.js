@@ -1,17 +1,53 @@
 import React, {useEffect, useState} from 'react';
 import io from 'socket.io-client';
-import { Link } from 'react-router-dom';
 import api from '../services/api';
+import uuid from 'uuid/v4';
 import './Main.css';
+import { from, Observable } from 'rxjs';
+import { count, map, filter } from 'rxjs/operators';
+
+const myId = uuid();
+const socket = io('http://localhost:3333');
 
 export default function Main({ match , history}){
 
-    var [messages, setMessages] = useState([]);
     const [users, setUsers] = useState([]);
 
+    var [messages, setMessages] = useState([]);
     var [message, setMessage] = useState('');
 
+    const [loggedUsers, setLoggedUsers] = useState([]);
+    const [usersOnline, setUsersOnline] = useState(0);
+
+    const observer = Observable.create((observer) => {
+        
+        console.log("Iniciando o Observable");
+        setInterval(() => observer.next(), 1000);
+        
+        //const interval = setInterval(() => observer.next(), 1000);
+        //setTimeout(() => observer.complete(), 5000);
+        //return () => clearInterval(interval);
+    });
+
+    const subscriber = observer.subscribe(() => {
+        console.log("observer");
+        console.log(loggedUsers.length)
+
+        socket.on('logUsers', data => {
+            //Operador Count
+            from(data).pipe(
+                count()
+            ).subscribe(setUsersOnline);
+        });
+
+    });
+
+    setTimeout(() => {
+        subscriber.unsubscribe();
+    }, 1000);
+
     useEffect(() => {
+
         async function loadUsers(){
             const response = await api.get('/devs', {
                 headers: {
@@ -21,82 +57,85 @@ export default function Main({ match , history}){
 
             setUsers(response.data);
 
-            console.log(response.data)
-        }
-
-        loadUsers();
-    },[match.params.id]);
-
-    useEffect(() => {
-        async function loadMessages(){
-            const response = await api.get('/message', {
-                headers: {
-                    author: match.params.id,
-                }
-            });
-
-            setMessages(response.data);
             console.log(response.data);
         }
 
-        loadMessages();
-    }, [match.params.id]);
+        loadUsers();
+        
+    },[match.params.id]);
 
     useEffect(() => {
-        const socket = io('http://localhost:3333', {
-            query: { user: match.params.id }
+        const handleNewMessage = newMessage =>
+            setMessages([...messages, newMessage]);
+
+        socket.on('sendMessage', handleNewMessage);
+        return () => socket.off('sendMessage', handleNewMessage);
+    }, [messages]);
+
+    useEffect(() => {
+
+        socket.on('logUsers', data => {
+
+            from(data).pipe(
+                count()
+            ).subscribe(setUsersOnline);
+
+            setLoggedUsers(data);
         });
 
-        socket.on('receivedMesage', async function(message){
-
-            const response = await api.get('/message', {
-                headers: {
-                    author: match.params.id,
-                }
-            });
-
-            setMessages(response.data);
+        socket.on('logoutUsers', data => {
+            console.log('logout');
+            console.log(data.length);
+            from(data).pipe(
+                count()
+            ).subscribe(setUsersOnline);
+ 
         });
-    }, [match.params.id]);
+    }, []);
 
     async function handleSubmit(event){
         event.preventDefault();
         
+        if(message.trim()){
+            socket.emit('sendMessage', {
+                id: myId,
+                author: users[0].user,
+                message
+            })
+            setMessage('');
+        }
+    }
+
+    function handleLogout(event){
+        event.preventDefault();
+
         const socket = io('http://localhost:3333');
+
+        console.log('LOGOUT');
         
-        const response = await api.post('/message', {
-            author: users[0].user,
-            text: message
-        });
-        
-        const { _id } = response.data;
+        socket.emit('logout', users[0]._id);
 
-        history.push(`/message/${_id}`);
+        history.push('/');
 
-        const response2 = await api.post('/devs', {
-            username: users[0].user,
-        });
-
-        history.push(`/dev/${response2.data._id}`);
-
-        socket.emit('sendMessage', response.data);
     }
 
     return(
 
         <div className="main-container">
-            <Link to="/">
-                <p>logout</p>
-            </Link>
+            <form onSubmit={handleLogout}>
+                <button type="submit">logout</button>                
+            </form>
 
+            <p>Usuarios {usersOnline}</p>
+            
             <form id="chat" onSubmit={handleSubmit}>
                 <div className="messages">
                     { messages.length > 0 &&
                     <ul>
                         {messages.map(msg => (
-                            <li key={msg._id}>
+                            <li key={msg.id}>
                                 <strong>{msg.author}</strong>
-                                <p>{msg.text}</p>
+                                <p>{msg.message}</p>
                             </li>
                         ))}
                     </ul>
@@ -107,8 +146,7 @@ export default function Main({ match , history}){
                     type="text"
                     value={message}
                     onChange={e => setMessage(e.target.value)}
-                    placeholder="digite sua mensagem"
-                    
+                    placeholder="digite sua mensagem" 
                 />
 
                 <button type="submit">Enviar</button>
