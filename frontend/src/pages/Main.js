@@ -19,6 +19,7 @@ export default function Main({ match , history}){
     const [loggedUsers, setLoggedUsers] = useState([]);
     const [usersOnline, setUsersOnline] = useState(0);
 
+    /*
     const observer = Observable.create((observer) => {
         
         console.log("Iniciando o Observable");
@@ -45,6 +46,7 @@ export default function Main({ match , history}){
     setTimeout(() => {
         subscriber.unsubscribe();
     }, 1000);
+    */
 
     useEffect(() => {
 

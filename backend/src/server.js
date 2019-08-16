@@ -31,7 +31,9 @@ io.on('connection', socket =>{
             distinct()
         ).subscribe(x => newLoggedUsers.push(x));
 
-        socket.broadcast.emit('logUsers', newLoggedUsers);
+        loggedUsers = newLoggedUsers;
+
+        socket.broadcast.emit('logUsers', loggedUsers);
     });
 
     socket.on('logout', data => {
@@ -43,7 +45,9 @@ io.on('connection', socket =>{
             filter(x => x != data),
         ).subscribe(x => newLoggedUsers.push(x));
 
-        socket.broadcast.emit('logoutUsers', newLoggedUsers);
+        loggedUsers = newLoggedUsers;
+
+        socket.broadcast.emit('logoutUsers', loggedUsers);
     });
 });
 
