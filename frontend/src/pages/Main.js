@@ -3,13 +3,17 @@ import io from 'socket.io-client';
 import api from '../services/api';
 import uuid from 'uuid/v4';
 import './Main.css';
+import Login from './Login';
+import { BrowserRouter, Route } from 'react-router-dom';
 import { from, Observable } from 'rxjs';
-import { count, map, filter } from 'rxjs/operators';
+import { count, map, filter, find } from 'rxjs/operators';
 
 const myId = uuid();
 const socket = io('http://localhost:3333');
 
-export default function Main({ match , history}){
+let onlineUsersOnStorage = localStorage.getItem('onlineUsers');
+
+export default function Main({ match , history }) {
 
     const [users, setUsers] = useState([]);
 
@@ -50,7 +54,8 @@ export default function Main({ match , history}){
 
     useEffect(() => {
 
-        async function loadUsers(){
+        console.log('id', socket.id);
+        async function loadCurrentUser() {
             const response = await api.get('/devs', {
                 headers: {
                     user: match.params.id,
@@ -58,11 +63,22 @@ export default function Main({ match , history}){
             });
 
             setUsers(response.data);
-
-            console.log(response.data);
         }
 
-        loadUsers();
+        
+        loadCurrentUser();
+
+        socket.on('onlineUsers', data => {
+
+            // find operator
+            const isLogged = from(data).pipe(
+                find( user => user == match.params.id )
+            );
+
+            isLogged.subscribe(isLogged =>
+                !isLogged && history.push('/')
+            );
+        });
         
     },[match.params.id]);
 
@@ -77,6 +93,7 @@ export default function Main({ match , history}){
     useEffect(() => {
 
         socket.on('logUsers', data => {
+            console.log('data', data);
 
             from(data).pipe(
                 count()
@@ -95,10 +112,10 @@ export default function Main({ match , history}){
         });
     }, []);
 
-    async function handleSubmit(event){
+    async function handleSubmit(event) {
         event.preventDefault();
         
-        if(message.trim()){
+        if(message.trim()) {
             socket.emit('sendMessage', {
                 id: myId,
                 author: users[0].user,
@@ -108,7 +125,7 @@ export default function Main({ match , history}){
         }
     }
 
-    function handleLogout(event){
+    function handleLogout(event) {
         event.preventDefault();
 
         const socket = io('http://localhost:3333');
@@ -116,6 +133,7 @@ export default function Main({ match , history}){
         console.log('LOGOUT');
         
         socket.emit('logout', users[0]._id);
+        console.log(users);
 
         history.push('/');
 

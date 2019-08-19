@@ -3,14 +3,15 @@ const Message = require('../models/Message');
 
 module.exports = {
 
-    async index(req, res){
+    async index(req, res) {
         const users = await Message.find({});
-        console.log(users)
+        
+        console.log(users);
         
         return res.json(users);
     },
 
-    async store(req, res){
+    async store(req, res) {
 
         const {author, text} = req.body;
 

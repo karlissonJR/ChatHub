@@ -3,7 +3,7 @@ const Dev = require('../models/Dev');
 
 module.exports = {
 
-    async index(req, res){
+    async index(req, res) {
         const { user } = req.headers;
 
         const loggedDev = await Dev.findById(user);
@@ -13,7 +13,8 @@ module.exports = {
         return res.json(users);
     },
 
-    async store(req, res){
+    async store(req, res) {
+        
         console.log(req.body.username);
 
         const {username} = req.body;

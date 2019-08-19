@@ -8,7 +8,7 @@ const routes = require('./routes');
 const app = express(); // criando um servidor
 const server = require('http').Server(app);//define o protocolo http
 const io = require('socket.io')(server);
-const { from} = require('rxjs');
+const { from } = require('rxjs');
 const { filter, distinct } = require('rxjs/operators');
 
 const connectedUsers = {};
@@ -22,7 +22,7 @@ io.on('connection', socket =>{
     });
 
     socket.on('log', data => {
-
+        console.log(data);
         loggedUsers.push(data);
         newLoggedUsers = [];
 
@@ -49,6 +49,8 @@ io.on('connection', socket =>{
 
         socket.broadcast.emit('logoutUsers', loggedUsers);
     });
+
+    socket.emit('onlineUsers', [...loggedUsers]);
 });
 
 mongoose.connect('mongodb+srv://karlisson:karlisson@cluster0-yrvrm.mongodb.net/github_users?retryWrites=true&w=majority', {
