@@ -3,15 +3,12 @@ import io from 'socket.io-client';
 import api from '../services/api';
 import uuid from 'uuid/v4';
 import './Main.css';
-import Login from './Login';
-import { BrowserRouter, Route } from 'react-router-dom';
 import { from, Observable } from 'rxjs';
 import { count, map, filter, find } from 'rxjs/operators';
+import logoutImg from '../assets/logout.svg';
 
 const myId = uuid();
 const socket = io('http://localhost:3333');
-
-let onlineUsersOnStorage = localStorage.getItem('onlineUsers');
 
 export default function Main({ match , history }) {
 
@@ -21,7 +18,7 @@ export default function Main({ match , history }) {
     var [message, setMessage] = useState('');
 
     const [loggedUsers, setLoggedUsers] = useState([]);
-    const [usersOnline, setUsersOnline] = useState(0);
+    const [usersOnline, setUsersOnline] = useState(1);
 
     /*
     const observer = Observable.create((observer) => {
@@ -137,16 +134,27 @@ export default function Main({ match , history }) {
 
         history.push('/');
 
+        // <form onSubmit={handleLogout}>
+        //         <button type="submit">logout</button>                
+        //     </form>
     }
 
     return(
 
         <div className="main-container">
-            <form onSubmit={handleLogout}>
-                <button type="submit">logout</button>                
-            </form>
 
-            <p>Usuarios {usersOnline}</p>
+            <div className="header">
+                <div></div>
+                <div className="onlineUsersCounter">
+                    <p>usuários online: {usersOnline} </p>
+                </div>
+                <form className="logoutButton"onSubmit={handleLogout}>
+                    <button className="logout" type="submit" on>
+                        <img src={logoutImg} alt="logout" />
+                    </button>
+                </form>
+            </div>
+
             
             <form id="chat" onSubmit={handleSubmit}>
                 <div className="messages">

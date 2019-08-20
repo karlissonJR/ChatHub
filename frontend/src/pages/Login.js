@@ -4,7 +4,7 @@ import './Login.css';
 import api from '../services/api';
 import io from 'socket.io-client';
 
-export default function Login({ history }){
+export default function Login({ history }) {
     
     const [username, setUsername] = useState('');
     

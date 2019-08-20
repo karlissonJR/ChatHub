@@ -1,49 +1,77 @@
 html, body {
     height: 100%;
-  }
+}
   
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  #chat {
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-  }
-  
-  input {
-    width: 600px;
-    border: 1px solid #ddd;
-    height: 50px;
-    padding: 0 20px;
-    font-size: 14px;
-  }
-  
-  button {
-    width: 600px;
-    height: 50px;
-    font-size: 14px;
-    background: #221E98;
-    text-align: center;
-    line-height: 50px;
-    font-weight: bold;
-    color: #FFF;
-    margin-top: 10px;
-  }
-  
-  .messages {
-    width: 600px;
-    height: 400px;
-    margin: 20px 0;
-    border: 1px solid #ddd;
-    padding: 20px;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#chat {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+input {
+  width: 600px;
+  border: 1px solid #ddd;
+  height: 50px;
+  padding: 0 20px;
+  font-size: 14px;
+}
+
+button {
+  width: 600px;
+  height: 50px;
+  font-size: 14px;
+  background: #221E98;
+  text-align: center;
+  line-height: 50px;
+  font-weight: bold;
+  color: #FFF;
+  margin-top: 10px;
+}
+
+.messages {
+  width: 600px;
+  height: 400px;
+  margin: 20px 0;
+  border: 1px solid #ddd;
+  padding: 20px;
+}
 
 .input-btn {
   flex-direction: column
 }
+
+.logout {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: none;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.onlineUsersCounter {
+  font-family: 'Livvic', sans-serif;
+  font-size: 20px;
+  font-weight: bolder;
+  color: #221E98;
+  text-align: right;
+  padding: 20px;
+}
+
+.logoutButton {
+  max-width: 40%;
+  padding-left: 30px;
+}
+
+@import url('https://fonts.googleapis.com/css?family=Livvic&display=swap');
